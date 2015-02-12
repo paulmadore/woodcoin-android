@@ -39,7 +39,7 @@ import android.util.Log;
 import com.google.bitcoin.script.Script;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.litecoin.LitcoinPeerDBDiscovery;
+import org.woodcoin.WoodcoinPeerDBDiscovery;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
@@ -95,7 +95,7 @@ import de.schildbach.wallet.util.CrashReporter;
 import de.schildbach.wallet.util.GenericUtils;
 import de.schildbach.wallet.util.ThrottlingWalletChangeListener;
 import de.schildbach.wallet.util.WalletUtils;
-import de.schildbach.wallet_ltc.R;
+import de.schildbach.wallet_log.R;
 
 /**
  * @author Andreas Schildbach, Litecoin Dev Team
@@ -423,7 +423,7 @@ public class BlockchainServiceImpl extends android.app.Service implements Blockc
 					{
                         try {
                             dbPeerDiscovery = new LitcoinPeerDBDiscovery(Constants.NETWORK_PARAMETERS,
-                                    getFileStreamPath("litecoin.peerdb"), peerGroup);
+                                    getFileStreamPath("woodcoin.peerdb"), peerGroup);
                         } catch(IllegalStateException e) {
                             // This can happen in the guts of bitcoinj
                             Log.i(TAG, "IllegalStateException in bitcoinj: " + e.getMessage());
