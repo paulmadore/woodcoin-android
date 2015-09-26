@@ -85,22 +85,16 @@ public class ExchangeRatesProvider extends ContentProvider
 	private Map<String, ExchangeRate> exchangeRates = null;
 	private long lastUpdated = 0;
 
-    private static final URL BTCE_URL;
-    private static final String[] BTCE_FIELDS = new String[] { "avg" };
-    private static final URL BTCE_EURO_URL;
-    private static final String[] BTCE_EURO_FIELDS = new String[] { "avg" };
-    private static final URL KRAKEN_URL;
-    private static final URL KRAKEN_EURO_URL;
-	private static final String[] KRAKEN_FIELDS = new String[] { "value" };
+    private static final URL CCEX_URL;
+    private static final String[] CCEX_FIELDS = new String[] { "lastsell" };
+    
 
 	static
 	{
 		try
 		{
-            BTCE_URL = new URL("https://btc-e.com/api/2/ltc_usd/ticker");
-            BTCE_EURO_URL = new URL("https://btc-e.com/api/2/ltc_eur/ticker");
-            KRAKEN_URL = new URL("https://api.kraken.com/0/public/Ticker?pair=XLTCZUSD");
-            KRAKEN_EURO_URL = new URL("https://api.kraken.com/0/public/Ticker?pair=XLTCZEUR");
+            CCEX_URL = new URL("https://c-cex.com/t/log-btc.json");
+            
 		}
 		catch (final MalformedURLException x)
 		{
@@ -132,57 +126,15 @@ public class ExchangeRatesProvider extends ContentProvider
 		{
 			Map<String, ExchangeRate> newExchangeRates = null;
             // Attempt to get USD exchange rates from all providers.  Stop after first.
-			newExchangeRates = requestExchangeRates(BTCE_URL, "USD", BTCE_FIELDS);
+			newExchangeRates = requestExchangeRates(CCEX_URL, "BTC", CCEX_FIELDS);
 
 			if (newExchangeRates == null)
             {
-                Log.i(TAG, "Failed to fetch BTCE USD rates");
-				newExchangeRates = requestExchangeRates(KRAKEN_URL, "USD", KRAKEN_FIELDS);
+                Log.i(TAG, "C-CEX Rates");
+				
             }
 
-            if (newExchangeRates == null)
-            {
-                Log.i(TAG, "Failed to fetch KRAKEN USD rates");
-                // Continue without USD rate (shouldn't generally happen)
-            }
-
-            // Get Euro rates as a fallback if Yahoo! fails below
-            Map<String, ExchangeRate> euroRate = requestExchangeRates(BTCE_EURO_URL, "EUR", BTCE_EURO_FIELDS);
-            if (euroRate == null)
-            {
-                Log.i(TAG, "Failed to fetch BTCE EUR rates");
-                euroRate = requestExchangeRates(KRAKEN_EURO_URL, "EUR", KRAKEN_FIELDS);
-            }
-
-            if (euroRate == null)
-            {
-                Log.i(TAG, "Failed to fetch KRAKEN EUR rates");
-            }
-            else
-            {
-                if(newExchangeRates != null)
-                    newExchangeRates.putAll(euroRate);
-                else
-                    newExchangeRates = euroRate;
-            }
-
-            if (newExchangeRates != null)
-			{
-                // Get USD conversion exchange rates from Google/Yahoo
-                ExchangeRate usdRate = newExchangeRates.get("USD");
-                RateLookup providers[] = {new GoogleRateLookup(), new YahooRateLookup()};
-                Map<String, ExchangeRate> fiatRates;
-                for(RateLookup provider : providers) {
-                    fiatRates = provider.getRates(usdRate);
-                    if(fiatRates != null) {
-                        // Remove EUR if we have a better source above
-                        if(euroRate != null)
-                            fiatRates.remove("EUR");
-                        // Remove USD rate because we already have it
-                        fiatRates.remove("USD");
-                        newExchangeRates.putAll(fiatRates);
-                        break;
-                    }
+                    
                 }
 
 				exchangeRates = newExchangeRates;
